@@ -1,0 +1,96 @@
+#!/usr/bin/env node
+
+import process from 'node:process';
+import { emitKeypressEvents } from 'readline';
+
+let state = {
+  x: 0,
+  y: 0,
+  targetX: 9,
+  targetY: 9,
+  interval: setInterval(function() {
+    moveTarget();
+  }, 1_000)
+}
+
+setupTerminal();
+
+process.stdin.on('keypress', function(_, key) {
+  if (key.name === 'q') {
+    gameOver();
+  }
+
+  if (key.name === 'left') {
+    state.x--;
+  }
+
+  if (key.name === 'right') {
+    state.x++;
+  }
+
+  if (key.name === 'up') {
+    state.y--;
+  }
+
+  if (key.name === 'down') {
+    state.y++;
+  }
+
+  update();
+})
+
+function moveTarget() {
+  if (Math.random() < 0.5) {
+    state.targetX--;
+  } else {
+    state.targetX++;
+  }
+
+  if (Math.random() < 0.5) {
+    state.targetY--;
+  } else {
+    state.targetY++;
+  }
+
+  update();
+}
+
+function update() {
+  if (state.x === state.targetX && state.y === state.targetY) {
+    gameOver();
+  }
+
+  render();
+}
+
+function render() {
+  console.clear();
+
+  process.stdout.cursorTo(state.x, state.y);
+  process.stdout.write('X');
+
+  process.stdout.cursorTo(state.targetX, state.targetY);
+  process.stdout.write('0');
+}
+
+function setupTerminal() {
+  // set up terminal for reading key presses
+  emitKeypressEvents(process.stdin);
+  process.stdin.setRawMode(true);
+
+  // use terminal alternate screen
+  process.stdout.write("\x1b[?1049h");
+
+  // hide cursor
+  process.stdout.write("\x1b[?25l");
+}
+
+function gameOver() {
+  // switch back to regular terminal screen
+  process.stdout.write("\x1b[?1049l");
+
+  // restore the cursor
+  process.stdout.write("\x1b[?25h");
+
+  process.exit();
+}
