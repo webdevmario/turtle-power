@@ -5,7 +5,10 @@ import { exec } from 'node:child_process';
 import { emitKeypressEvents } from 'readline';
 
 const CELEBRATIONS = [
-  'COWABUNGA!'
+  'Cowabunga!',
+  'Turtle Power!',
+  'Pizza time!',
+  'Booyakasha!',
 ];
 
 let state = {
@@ -101,7 +104,9 @@ function gameOver() {
   // restore the cursor
   process.stdout.write("\x1b[?25h");
 
-  say(CELEBRATIONS[0]);
+  const messageIndex = Math.floor(Math.random() * CELEBRATIONS.length); 
+
+  say(CELEBRATIONS[messageIndex]);
 
   process.exit();
 }
