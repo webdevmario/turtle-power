@@ -15,7 +15,7 @@ let state = {
   y: 10,
   targetX: 9,
   targetY: 9,
-  celebration: '',
+  celebration: null,
   soldiers: 20,
   status: 'active',
   time: 10000,
@@ -23,7 +23,7 @@ let state = {
     state.time = state.time - 1_000;
   }, 1_000),
   interval: setInterval(() => {
-    if (state.time !== 0) {
+    if (state.time >= 0) {
       moveTarget();
     }
   }, 1_000)
@@ -62,6 +62,14 @@ function init() {
   render();
 }
 
+function clearTimers() {
+  clearInterval(state.interval);
+  clearInterval(state.timer);
+
+  state.timer = null;
+  state.interval = null;
+}
+
 function drawHeader() {
   process.stdout.cursorTo(0, 0);
   
@@ -92,19 +100,17 @@ function say(message) {
 }
 
 function update() {
-  if (state.x === state.targetX && state.y === state.targetY) {
-    state.status = 'win';
-
-    gameOver('end');
-  }
-
   if (state.time === 0) {
     state.status = 'fail';
 
     gameOver('end');
-  }
+  } else if (state.x === state.targetX && state.y === state.targetY) {
+    state.status = 'win';
 
-  render();
+    gameOver('end');
+  } else {
+    render();
+  }
 }
 
 function render() {
@@ -133,16 +139,6 @@ function setupTerminal() {
 
 function gameOver(type) {
   switch (type) {
-    case 'exit':
-      // switch back to regular terminal screen
-      process.stdout.write("\x1b[?1049l");
-      
-      // restore the cursor
-      process.stdout.write("\x1b[?25h");
-
-      process.exit();
-
-      break;
     case 'end':
       const messageIdx = Math.floor(Math.random() * CELEBRATIONS.length);
       const celebration = CELEBRATIONS[messageIdx];
@@ -150,6 +146,8 @@ function gameOver(type) {
       state.celebration = celebration;
 
       say(celebration);
+      render();
+      clearTimers();
 
       break;
     default:
