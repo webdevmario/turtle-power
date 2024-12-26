@@ -12,16 +12,14 @@ const CELEBRATIONS = [
 ];
 
 let state = {
-  x: 0,
-  y: 0,
+  x: 10,
+  y: 10,
   targetX: 9,
   targetY: 9,
   interval: setInterval(function() {
     moveTarget();
   }, 1_000)
 }
-
-setupTerminal();
 
 process.stdin.on('keypress', function(_, key) {
   if (key.name === 'q') {
@@ -46,6 +44,24 @@ process.stdin.on('keypress', function(_, key) {
 
   update();
 })
+
+init();
+
+function init() {
+  console.clear();
+
+  setupTerminal();
+  render();
+}
+
+function drawHeader() {
+  process.stdout.cursorTo(0, 0);
+
+  for (let i = 0; i <= 50; i++) {
+    process.stdout.write('-');
+    process.stdout.cursorTo(i, 0);
+  }
+}
 
 function moveTarget() {
   if (Math.random() < 0.5) {
@@ -77,6 +93,8 @@ function update() {
 
 function render() {
   console.clear();
+
+  drawHeader();
 
   process.stdout.cursorTo(state.x, state.y);
   process.stdout.write('X');
