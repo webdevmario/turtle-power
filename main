@@ -8,7 +8,6 @@ const CELEBRATIONS = [
   'Cowabunga!',
   'Turtle Power!',
   'Pizza time!',
-  'Booyakasha!',
 ];
 
 let state = {
@@ -16,7 +15,15 @@ let state = {
   y: 10,
   targetX: 9,
   targetY: 9,
-  interval: setInterval(function() {
+  time: 10000,
+  timer: setInterval(() => {
+    state.time = state.time - 1_000;
+
+    if (state.time === 0) {
+      gameOver();
+    }
+  }, 1_000),
+  interval: setInterval(() => {
     moveTarget();
   }, 1_000)
 }
@@ -56,11 +63,10 @@ function init() {
 
 function drawHeader() {
   process.stdout.cursorTo(0, 0);
+  
+  const message = `FOOT SOLIDERS: 20 | TIME REMAINING: ${state.time/1000} SECONDS`;
 
-  for (let i = 0; i <= 50; i++) {
-    process.stdout.write('-');
-    process.stdout.cursorTo(i, 0);
-  }
+  process.stdout.write(message);
 }
 
 function moveTarget() {
@@ -80,7 +86,7 @@ function moveTarget() {
 }
 
 function say(message) {
-  exec(`say --voice="Fred" ${message}`);
+  exec(`say --voice="Alex" --rate="175" ${message}`);
 }
 
 function update() {
