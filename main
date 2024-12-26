@@ -15,16 +15,17 @@ let state = {
   y: 10,
   targetX: 9,
   targetY: 9,
+  celebration: '',
+  soldiers: 20,
+  status: 'active',
   time: 10000,
   timer: setInterval(() => {
     state.time = state.time - 1_000;
-
-    if (state.time === 0) {
-      gameOver();
-    }
   }, 1_000),
   interval: setInterval(() => {
-    moveTarget();
+    if (state.time !== 0) {
+      moveTarget();
+    }
   }, 1_000)
 }
 
@@ -64,7 +65,8 @@ function init() {
 function drawHeader() {
   process.stdout.cursorTo(0, 0);
   
-  const message = `FOOT SOLIDERS: 20 | TIME REMAINING: ${state.time/1000} SECONDS`;
+  const celebration = state.celebration ? ` | MESSAGE: ${state.celebration}` : '';
+  const message = `FOOT SOLIDERS: 20 | TIME REMAINING: ${state.time/1000} SECONDS${celebration}`;
 
   process.stdout.write(message);
 }
@@ -91,7 +93,15 @@ function say(message) {
 
 function update() {
   if (state.x === state.targetX && state.y === state.targetY) {
-    gameOver();
+    state.status = 'win';
+
+    gameOver('end');
+  }
+
+  if (state.time === 0) {
+    state.status = 'fail';
+
+    gameOver('end');
   }
 
   render();
@@ -121,16 +131,30 @@ function setupTerminal() {
   process.stdout.write("\x1b[?25l");
 }
 
-function gameOver() {
-  // switch back to regular terminal screen
-  process.stdout.write("\x1b[?1049l");
+function gameOver(type) {
+  switch (type) {
+    case 'exit':
+      // switch back to regular terminal screen
+      process.stdout.write("\x1b[?1049l");
+      
+      // restore the cursor
+      process.stdout.write("\x1b[?25h");
 
-  // restore the cursor
-  process.stdout.write("\x1b[?25h");
+      process.exit();
 
-  const messageIndex = Math.floor(Math.random() * CELEBRATIONS.length); 
+      break;
+    case 'end':
+      const messageIdx = Math.floor(Math.random() * CELEBRATIONS.length);
+      const celebration = CELEBRATIONS[messageIdx];
 
-  say(CELEBRATIONS[messageIndex]);
+      state.celebration = celebration;
 
-  process.exit();
+      say(celebration);
+
+      break;
+    default:
+      process.stdout.write("\x1b[?1049l");
+      process.stdout.write("\x1b[?25h");
+      process.exit();
+  }
 }
