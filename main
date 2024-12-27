@@ -16,22 +16,27 @@ let state = {
   targetX: 9,
   targetY: 9,
   celebration: null,
+  screen: 'start',
   soldiers: 20,
   status: 'active',
   time: 10000,
-  timer: setInterval(() => {
-    state.time = state.time - 1_000;
-  }, 1_000),
-  interval: setInterval(() => {
-    if (state.time >= 0) {
-      moveTarget();
-    }
-  }, 1_000)
+  timer: null,
+  interval: null,
 }
+
+const startScreen = `========================\n----- TURTLE POWER -----\n========================\n
+
+1. Press "s" to start the game. 
+2. You'll have ${state.time/1000} seconds to wipe out 20 foot soldiers.
+`;
 
 process.stdin.on('keypress', function(_, key) {
   if (key.name === 'q') {
     gameOver();
+  }
+
+  if (key.name === 's' && state.screen === 'start') {
+    startGame();
   }
 
   if (key.name === 'left') {
@@ -59,15 +64,30 @@ function init() {
   console.clear();
 
   setupTerminal();
-  render();
+
+  if (state.screen === 'start') {
+    console.log(startScreen);
+  } else {
+    render();
+  }
 }
 
-function clearTimers() {
-  clearInterval(state.interval);
+function startGame() {
+  state.screen = 'game';
+
+  state.timer = setInterval(() => {
+    state.time = state.time - 1_000;
+
+    if (state.time >= 0) {
+      moveTarget();
+    }
+  }, 1_000);
+}
+
+function clearTimer() {
   clearInterval(state.timer);
 
   state.timer = null;
-  state.interval = null;
 }
 
 function drawHeader() {
@@ -147,7 +167,7 @@ function gameOver(type) {
 
       say(celebration);
       render();
-      clearTimers();
+      clearTimer();
 
       break;
     default:
