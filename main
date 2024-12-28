@@ -8,6 +8,7 @@ const CELEBRATIONS = [
   'COWABUNGA!',
   'TURTLE POWER!',
   'PIZZA TIME!',
+  'BOOYAKASHA!',
 ];
 
 let state = {
@@ -155,10 +156,10 @@ function render() {
   drawHeader();
 
   process.stdout.cursorTo(state.x, state.y);
-  process.stdout.write('X');
+  process.stdout.write('🐢');
 
   process.stdout.cursorTo(state.targetX, state.targetY);
-  process.stdout.write('0');
+  process.stdout.write('🥷');
 }
 
 function setupTerminal() {
